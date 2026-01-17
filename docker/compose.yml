@@ -1,0 +1,62 @@
+x-common: &common
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile
+  volumes:
+    - ..:/app
+    - node_modules:/app/node_modules
+  working_dir: /app
+  env_file:
+    - path: ../.env
+      required: false
+  environment:
+    HOME: /home/dev
+
+services:
+  run:
+    <<: *common
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: run
+    ports:
+      - "8787:8787"
+    stdin_open: true
+    tty: true
+
+  test:
+    <<: *common
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: test
+
+  sh:
+    <<: *common
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: dev
+    stdin_open: true
+    tty: true
+    command: sleep infinity
+
+  claude:
+    <<: *common
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: claude
+    stdin_open: true
+    tty: true
+    volumes:
+      - ..:/app
+      - node_modules:/app/node_modules
+      - ~/.claude:/home/dev/.claude
+      - ~/.claude.json:/home/dev/.claude.json
+    environment:
+      HOME: /home/dev
+      ANTHROPIC_API_KEY:
+
+volumes:
+  node_modules:
